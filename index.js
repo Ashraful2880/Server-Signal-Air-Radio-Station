@@ -1,6 +1,6 @@
 const express = require('express');
 const { MongoClient } = require('mongodb');
-const ObjectId = require('mongodb').ObjectId;
+const ObjectId = require("mongodb").ObjectId;
 require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -45,7 +45,6 @@ async function run() {
             const newStation = {
                 Name, Code, Image, display
             }
-            console.log(newStation);
             const result = await stations.insertOne(newStation);
             res.json(result);
         })
@@ -54,11 +53,35 @@ async function run() {
 
         app.delete('/deleteStation/:id', async (req, res) => {
             const id = req.params.id;
-            console.log(id);
             const query = { Code: id }
             const remove = await stations.deleteOne(query);
             res.json(remove)
         });
+
+        // Find Single Station By Id
+
+        app.get("/findSingleStation/:id", async (req, res) => {
+            const id = req.params.id;
+            const findId = { _id: ObjectId(id) };
+            const result = await stations.findOne(findId);
+            res.send(result);
+        });
+
+        // Update Single Station
+
+        app.put("/updateSingleStation/:id", async (req, res) => {
+            const id = req.params.id;
+            const updatedReq = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = { $set: { Name: updatedReq.Name, Code: updatedReq.Code } };
+            const result = await stations.updateOne(
+                filter,
+                updateDoc,
+            );
+            res.json(result);
+        });
+
+
 
     } finally {
         // await client.close();
